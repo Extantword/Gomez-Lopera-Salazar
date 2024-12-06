@@ -8,8 +8,6 @@ Original file is located at
 """
 
 import numpy as np
-np.set_printoptions(precision=3)
-np.set_printoptions(suppress=True)
 
 def householder_qr(A):
     """"
@@ -52,10 +50,45 @@ def householder_qr(A):
 
     return Q, R
 
+def qr_eigenvalue_algorithm(A, max_iter=1000, tolerance=1e-10):
+    
+    """
+    Computa autovalores usando el algoritmo QR
+    
+    Parameters:
+    A (list): Matriz a la que se hallarán los autovalores
+    max_iter (int): Número máximo de iteraciones
+    tolerance (float): Tolerancia de la convergencia
+    
+    Returna:
+    np.array: eigenvalues
+    """
+    
+    A = np.array(A, dtype=float)
+    n = A.shape[0]
+    V = np.eye(n)
+    H = A.copy()
+    
+    for _ in range(max_iter):
+        
+        Q, R = householder_qr(H)
+        H = R @ Q
+        V = V @ Q
+        
+        off_diag_norm = np.sum(np.abs(np.tril(H, -1))) #Calcula norma de diagonal debajo de la diagonal principal.
+        
+        if off_diag_norm < tolerance:
+            break
+    
+    eigenvalues = np.diag(H)
+    
+    return eigenvalues
+
 A = np.array([[1, 0, 0, 0],
               [3, 2, 0, 0],
               [1, 1, 4, 0],
               [1, 2, 1, 7]]) #Defina su matriz
 
-Q, R = householder_qr(A)
-Q @ R
+result = qr_eigenvalue_algorithm(A)
+
+print(result)
